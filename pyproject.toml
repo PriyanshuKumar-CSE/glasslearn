@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "glasslearn"
+version = "0.1.0a1"
+description = "scikit-learn you can see through: ML algorithms that explain each training step"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [{ name = "Priyanshu Kumar" }]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Framework :: Jupyter",
+]
+dependencies = [
+    "numpy>=1.24",
+    "plotly>=5",
+    "ipywidgets>=8",
+]
+
+[project.optional-dependencies]
+pandas = ["pandas>=1.5"]
+
+[project.urls]
+Repository = "https://github.com/PriyanshuKumar-CSE/glasslearn"
+Issues = "https://github.com/PriyanshuKumar-CSE/glasslearn/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "hypothesis>=6",
+    "nbmake>=1.5",
+    "ruff>=0.6",
+    "scikit-learn>=1.4",
+    "pandas>=1.5",
+    "jupyter>=1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/glasslearn"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/glasslearn", "tests", "LICENSE", "README.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+extend-exclude = ["docs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "NPY", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = ["E402"]
