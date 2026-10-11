@@ -36,6 +36,9 @@ class KMeansView(View):
         at every step.
     """
 
+    #: Metric drawn under the main plot.
+    metric = "inertia"
+
     def __init__(self, trace: Trace, *, max_points: int = 2000) -> None:
         super().__init__(trace, max_points=max_points)
         if trace.X is None or len(trace) == 0:

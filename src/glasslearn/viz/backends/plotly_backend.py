@@ -206,19 +206,20 @@ def animated_figure(
     captions: Sequence[str],
     *,
     labels: Sequence[str] | None = None,
+    active: int = 0,
     title: str = "",
-    height: int = 620,
+    height: int = 640,
 ) -> go.Figure:
     """One plotly figure with a frame per step, a slider and play/pause buttons.
 
-    ``captions`` are HTML strings shown above the plot for each frame.
+    ``captions`` are HTML strings shown above the plot for each frame;
+    ``active`` is the step shown first.
     """
     labels = (
         list(labels) if labels is not None else [str(i) for i in range(len(scenes))]
     )
-    fig = go.Figure(
-        data=traces_for(scenes[0]), layout=layout_for(scenes[0], height=height)
-    )
+    first = scenes[active]
+    fig = go.Figure(data=traces_for(first), layout=layout_for(first, height=height))
     fig.frames = [
         go.Frame(
             data=traces_for(scene),
@@ -232,15 +233,39 @@ def animated_figure(
         "frame": {"duration": 0, "redraw": True},
         "transition": {"duration": 0},
     }
+    play = {
+        "frame": {"duration": 800, "redraw": True},
+        "transition": {"duration": 0},
+        "fromcurrent": True,
+    }
+    # Room above the plot for the title and the tallest caption.
+    title_lines = title.count("<br>") + 1 if title else 0
+    caption_lines = max(c.count("<br>") + 1 for c in captions)
+    top = 40 + 20 * title_lines + 18 * caption_lines
     fig.update_layout(
-        title={"text": title, "x": 0, "xanchor": "left", "font": {"size": 15}},
-        margin={"l": 60, "r": 20, "t": 190, "b": 40},
-        annotations=[_caption(captions[0])],
+        title={
+            "text": title,
+            "x": 0,
+            "xanchor": "left",
+            "y": 1,
+            "yref": "container",
+            "yanchor": "top",
+            "pad": {"t": 12, "l": 8},
+        },
+        title_font_size=15,
+        height=height + top - 190,
+        margin={"l": 60, "r": 20, "t": top, "b": 110},
+        annotations=[_caption(captions[active])],
         sliders=[
             {
-                "active": 0,
-                "currentvalue": {"prefix": "Step: "},
-                "pad": {"t": 40},
+                "active": active,
+                "x": 0.12,
+                "len": 0.88,
+                "y": 0,
+                "yanchor": "top",
+                "pad": {"t": 55, "b": 10},
+                "font": {"size": 10},
+                "currentvalue": {"prefix": "Step ", "font": {"size": 12}},
                 "steps": [
                     {"method": "animate", "label": label, "args": [[str(i)], still]}
                     for i, label in enumerate(labels)
@@ -251,29 +276,15 @@ def animated_figure(
             {
                 "type": "buttons",
                 "direction": "left",
-                "x": 0,
-                "y": -0.06,
-                "xanchor": "left",
+                "x": 0.12,
+                "y": 0,
+                "xanchor": "right",
                 "yanchor": "top",
+                "pad": {"t": 62, "r": 10},
                 "showactive": False,
                 "buttons": [
-                    {
-                        "label": "▶ Play",
-                        "method": "animate",
-                        "args": [
-                            None,
-                            {
-                                "frame": {"duration": 800, "redraw": True},
-                                "transition": {"duration": 0},
-                                "fromcurrent": True,
-                            },
-                        ],
-                    },
-                    {
-                        "label": "❚❚ Pause",
-                        "method": "animate",
-                        "args": [[None], still],
-                    },
+                    {"label": "▶", "method": "animate", "args": [None, play]},
+                    {"label": "❚❚", "method": "animate", "args": [[None], still]},
                 ],
             }
         ],

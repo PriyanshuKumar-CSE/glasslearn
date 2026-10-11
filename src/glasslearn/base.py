@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import inspect
 from collections import defaultdict
 from typing import Any, ClassVar, TypeVar
@@ -129,6 +130,69 @@ class GlassEstimator:
 
     def _fit(self, X: np.ndarray, y: np.ndarray | None, rec: Recorder) -> None:
         raise NotImplementedError
+
+    def explain(
+        self,
+        X: Any = None,
+        *,
+        step: int | None = None,
+        projection: Any = "auto",
+        level: str | None = None,
+        static: bool | None = None,
+        max_points: int | None = None,
+    ):
+        """Show how the model was trained, step by step, in the notebook.
+
+        Parameters
+        ----------
+        X : array-like of shape (n_samples, n_features), optional
+            Data to draw in place of the recorded training data. It must have
+            the training shape, because each recorded label refers to a row.
+        step : int, optional
+            Step to show first (negative counts from the end).
+        projection : "auto", "pca", (str, str) or Projection, default="auto"
+            How to draw more than two features: ``"auto"`` uses the raw axes
+            for one or two features and PCA otherwise; a pair of feature names
+            plots those two columns.
+        level : {"beginner", "detailed", "math"}, optional
+            How technical the narration is (default from ``set_config``).
+        static : bool, optional
+            True for a plain plotly figure with a slider, False for the live
+            widget. By default the widget is used when the notebook supports it.
+        max_points : int, optional
+            Most points drawn (default 2000), sampled per cluster.
+
+        Returns
+        -------
+        ExplainView
+            Displays itself in a notebook; ``.save("run.html")`` writes a file.
+        """
+        check_is_fitted(self)
+        trace = self.trace_
+        if len(trace) == 0:
+            raise ValueError(
+                "Nothing to explain: the model was fitted with record=False. "
+                "Fit again with record=True."
+            )
+        if X is not None:
+            X = self._validate_predict_data(X)
+            if trace.X is not None and X.shape != trace.X.shape:
+                raise ValueError(
+                    f"X has shape {X.shape}, but the recorded training data has shape "
+                    f"{trace.X.shape}; explain() draws the training rows."
+                )
+            trace = dataclasses.replace(trace, X=X)
+
+        from .viz.widget import ExplainView
+
+        return ExplainView(
+            trace,
+            step=step,
+            projection=projection,
+            level=level,
+            static=static,
+            max_points=max_points,
+        )
 
     def _validate_fit_data(
         self, X: Any, y: Any

@@ -182,6 +182,9 @@ class View:
     points are drawn; the same sample is used for every step.
     """
 
+    #: Name of a recorded metric to draw as a small curve (None for no curve).
+    metric: str | None = None
+
     def __init__(self, trace: Any, *, max_points: int = 2000) -> None:
         self.trace = trace
         self.max_points = int(max_points)
