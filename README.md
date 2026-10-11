@@ -2,8 +2,116 @@
 
 *scikit-learn you can see through.*
 
-Classic ML algorithms implemented from scratch in numpy behind the scikit-learn
-API. Every `fit` records a step-by-step trace, and `.explain()` renders a narrated,
-scrubbable visual inside a notebook cell.
+glasslearn re-implements classic machine-learning algorithms in plain numpy,
+behind the scikit-learn API. Every `fit` records what the algorithm does, step
+by step, and `.explain()` turns that recording into a narrated, scrubbable
+picture right inside your Jupyter or VS Code notebook cell.
 
-Work in progress: see `docs/PLAN.md`.
+It is built for learning: the numbers match scikit-learn, and every sentence of
+the explanation comes from what was actually recorded, never from guesswork.
+
+> Status: early alpha (0.1.0a1). `KMeans` is ready; more algorithms are on the way.
+
+## Quickstart
+
+```python
+import glasslearn as gl
+from glasslearn.cluster import KMeans
+
+X = gl.datasets.make_blobs(n_samples=300, centers=4, random_state=0, as_frame=True)
+km = KMeans(n_clusters=4, random_state=0).fit(X)
+km.explain()  # narrated, scrubbable view in the notebook cell
+```
+
+Then, in new cells:
+
+- `km.explain(level="math")` explains the same run with formulas (`"detailed"`
+  is in between; `"beginner"` is the default).
+- `km.explain(static=True).save("kmeans.html")` writes a standalone HTML file
+  that opens offline.
+- `km.cluster_centers_`, `km.labels_`, `km.n_iter_` and `km.inertia_` are the
+  usual scikit-learn attributes.
+
+In the notebook you get:
+
+- a plot of the data with each centroid's move drawn as an arrow, and a faint
+  trail of where it has been;
+- a play button, a slider and step buttons to move through the run;
+- a few sentences per step that say what changed and why ("Centroid 1 moved to
+  the left by 0.31 because 1 point joined it and 15 points left, so the average of
+  its points changed.");
+- the inertia curve, with the current step marked;
+- warnings with a suggested fix when something looks wrong, such as features on
+  very different scales, an empty cluster or hitting `max_iter`.
+
+Data with more than two features is drawn with PCA (the axis titles say how much
+of the spread is kept), or with two features you choose:
+`km.explain(projection=("age", "income"))`.
+
+## Install
+
+glasslearn needs Python 3.10 or newer. Until the first release is on PyPI,
+install it from GitHub:
+
+```bash
+pip install "glasslearn[pandas] @ git+https://github.com/PriyanshuKumar-CSE/glasslearn"
+```
+
+It depends on numpy, plotly, ipywidgets and anywidget; pandas is optional.
+
+## Works like scikit-learn
+
+Swap one import and keep the rest of your code:
+
+```python
+from glasslearn.cluster import KMeans  # instead of sklearn.cluster
+```
+
+- Same constructor parameters and fitted attributes (`cluster_centers_`,
+  `labels_`, `inertia_`, `n_iter_`, `feature_names_in_`).
+- Works with `clone`, `Pipeline`, `GridSearchCV` and `cross_val_score`, and
+  passes scikit-learn's `check_estimator` (one documented exception).
+- Tested against scikit-learn: same labels, same `n_iter_`, centroids and
+  inertia equal to 1e-7 relative tolerance, including k-means++ seeding,
+  restarts and empty-cluster handling.
+- `fit(X, record=False)` gives the identical model without recording, for
+  speed. The recording itself is plain data in `model.trace_`
+  (`trace_.to_frame()`, `trace_.metric("inertia")`, `trace_.save(...)`).
+
+Differences from scikit-learn are listed in each estimator's docstring (for
+example, `KMeans.fit` takes no `sample_weight` yet).
+
+## Algorithms
+
+| Module | Estimator | Status |
+| --- | --- | --- |
+| `glasslearn.cluster` | `KMeans` | ready |
+| `glasslearn.linear_model` | `LinearRegression`, `LogisticRegression` | planned |
+| `glasslearn.neighbors` | `KNeighborsClassifier`, `KNeighborsRegressor` | planned |
+| `glasslearn.tree` | `DecisionTreeClassifier`, `DecisionTreeRegressor` | planned |
+
+The example notebook [`examples/01_kmeans.ipynb`](https://github.com/PriyanshuKumar-CSE/glasslearn/blob/main/examples/01_kmeans.ipynb)
+walks through k-means, including what goes wrong with a bad start or unscaled
+features.
+
+## How it works
+
+Each algorithm only *records*: its training loop reports steps and events
+(`CentroidMoved`, `PointsReassigned`, `Converged`, ...) to a recorder. After
+fitting, a narrator turns the events into sentences from tested templates, and
+a view turns each step into a plot. Nothing is generated at runtime and no
+network is used. The design is in [`docs/PLAN.md`](https://github.com/PriyanshuKumar-CSE/glasslearn/blob/main/docs/PLAN.md).
+
+## Development
+
+```bash
+uv sync --all-extras          # install with dev tools
+uv run pytest                 # tests, parity with scikit-learn, example notebooks
+uv run pytest --update-golden # regenerate narration golden files (review the diff)
+uv run ruff check . && uv run ruff format .
+uv build                      # sdist and wheel into dist/
+```
+
+## License
+
+BSD 3-Clause. See [LICENSE](https://github.com/PriyanshuKumar-CSE/glasslearn/blob/main/LICENSE).
