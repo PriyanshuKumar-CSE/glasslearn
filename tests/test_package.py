@@ -1,8 +1,13 @@
+import re
+from pathlib import Path
+
 import glasslearn
 
 
-def test_version():
-    assert glasslearn.__version__ == "0.1.0a1"
+def test_version_matches_pyproject():
+    pyproject = (Path(__file__).parents[1] / "pyproject.toml").read_text()
+    expected = re.search(r'^version = "(.+)"', pyproject, re.M).group(1)
+    assert glasslearn.__version__ == expected
 
 
 def test_config_round_trip():

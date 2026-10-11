@@ -10,7 +10,7 @@ picture right inside your Jupyter or VS Code notebook cell.
 It is built for learning: the numbers match scikit-learn, and every sentence of
 the explanation comes from what was actually recorded, never from guesswork.
 
-> Status: early alpha (0.1.0a1). `KMeans` is ready; more algorithms are on the way.
+> Status: early alpha (0.1.0a2). `KMeans` is ready; more algorithms are on the way.
 
 ## Quickstart
 
@@ -50,11 +50,11 @@ of the spread is kept), or with two features you choose:
 
 ## Install
 
-glasslearn needs Python 3.10 or newer. Until the first release is on PyPI,
-install it from GitHub:
+glasslearn needs Python 3.10 or newer. Install it from
+[PyPI](https://pypi.org/project/glasslearn/):
 
 ```bash
-pip install "glasslearn @ git+https://github.com/PriyanshuKumar-CSE/glasslearn"
+pip install glasslearn
 ```
 
 It depends on numpy, pandas, plotly, ipywidgets and anywidget, which pip

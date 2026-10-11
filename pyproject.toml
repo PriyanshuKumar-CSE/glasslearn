@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "glasslearn"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "scikit-learn you can see through: ML algorithms that explain each training step"
 readme = "README.md"
 license = "BSD-3-Clause"
