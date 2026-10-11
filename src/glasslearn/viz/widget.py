@@ -178,8 +178,8 @@ class ExplainView(widgets.VBox):
         parts = [f"<div>{html.escape(narration.text)}</div>"]
         if narration.glossary:
             terms = "<br>".join(
-                f"<b>{html.escape(term)}</b>{html.escape(text[len(term) :])}"
-                for term, text in narration.glossary
+                "<b>{}</b>:{}".format(*map(html.escape, text.split(":", 1)))
+                for _, text in narration.glossary
             )
             parts.append(f'<div style="{_QUIET_STYLE}">{terms}</div>')
         for d in narrator.diagnostics(upto=index):
@@ -271,12 +271,12 @@ class ExplainView(widgets.VBox):
         )
         widgets.jslink((self._play, "value"), (self._slider, "value"))
         self._prev = widgets.Button(
-            icon="step-backward",
+            description="◀",
             tooltip="Previous step",
             layout=widgets.Layout(width="40px"),
         )
         self._next = widgets.Button(
-            icon="step-forward",
+            description="▶",
             tooltip="Next step",
             layout=widgets.Layout(width="40px"),
         )

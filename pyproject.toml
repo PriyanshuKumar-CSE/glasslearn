@@ -56,8 +56,9 @@ packages = ["src/glasslearn"]
 include = ["src/glasslearn", "tests", "LICENSE", "README.md"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "-ra"
+testpaths = ["tests", "examples"]
+# --nbmake also runs every notebook in examples/ as a test.
+addopts = "-ra --nbmake"
 filterwarnings = [
     # By design: glasslearn estimators do not inherit from sklearn's BaseEstimator.
     "ignore:Estimator .* does not inherit from `sklearn.base.BaseEstimator`:UserWarning",
