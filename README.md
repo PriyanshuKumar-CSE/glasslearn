@@ -10,7 +10,7 @@ picture right inside your Jupyter or VS Code notebook cell.
 It is built for learning: the numbers match scikit-learn, and every sentence of
 the explanation comes from what was actually recorded, never from guesswork.
 
-> Status: early alpha (0.1.0a2). `KMeans` is ready; more algorithms are on the way.
+> Status: early alpha (0.1.0a3). `KMeans` is ready; more algorithms are on the way.
 
 ## Quickstart
 
