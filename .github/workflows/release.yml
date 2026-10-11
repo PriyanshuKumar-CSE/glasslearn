@@ -6,6 +6,46 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    # Lint and the full test suite (including example notebooks) on the oldest
+    # and newest supported Python. Both publish jobs wait for this.
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.13"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync --all-extras --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest
+
+  version:
+    # The tag being released must match the version in pyproject.toml. A manual
+    # TestPyPI dry run started from a branch has no tag, so it only reports the
+    # version; started from a tag, it is checked like a real release.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Compare the tag with pyproject.toml
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          version="$(python3 -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
+          if [ "$REF_TYPE" != "tag" ]; then
+            echo "No tag (run from $REF_NAME): pyproject.toml version is $version."
+            exit 0
+          fi
+          if [ "${REF_NAME#v}" != "$version" ]; then
+            echo "::error::Tag $REF_NAME does not match pyproject.toml version $version (expected tag v$version)."
+            exit 1
+          fi
+          echo "Tag $REF_NAME matches pyproject.toml version $version."
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -18,9 +58,10 @@ jobs:
           path: dist/
 
   publish-pypi:
-    # Real releases: only from a pushed v* tag.
+    # Real releases: only from a pushed v* tag, and only after tests and the
+    # version check pass.
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: [test, version, build]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -35,7 +76,7 @@ jobs:
   publish-testpypi:
     # Dry runs: trigger manually from the Actions tab.
     if: github.event_name == 'workflow_dispatch'
-    needs: build
+    needs: [test, version, build]
     runs-on: ubuntu-latest
     environment: testpypi
     permissions:

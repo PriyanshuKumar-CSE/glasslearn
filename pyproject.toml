@@ -25,14 +25,12 @@ classifiers = [
 ]
 dependencies = [
     "numpy>=1.24",
+    "pandas>=1.5",
     "plotly>=5.11",
     "ipywidgets>=8",
     # plotly>=6 builds FigureWidget (the live view) on anywidget.
     "anywidget>=0.9",
 ]
-
-[project.optional-dependencies]
-pandas = ["pandas>=1.5"]
 
 [project.urls]
 Repository = "https://github.com/PriyanshuKumar-CSE/glasslearn"
@@ -45,7 +43,6 @@ dev = [
     "nbmake>=1.5",
     "ruff>=0.6",
     "scikit-learn>=1.6",
-    "pandas>=1.5",
     "jupyter>=1",
 ]
 

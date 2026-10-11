@@ -54,12 +54,11 @@ glasslearn needs Python 3.10 or newer. Until the first release is on PyPI,
 install it from GitHub:
 
 ```bash
-pip install "glasslearn[pandas] @ git+https://github.com/PriyanshuKumar-CSE/glasslearn"
+pip install "glasslearn @ git+https://github.com/PriyanshuKumar-CSE/glasslearn"
 ```
 
-It depends on numpy, plotly, ipywidgets and anywidget. pandas is optional, but
-the quickstart needs it (`as_frame=True`), as do `summary()` and
-`trace_.to_frame()`, so install the `[pandas]` extra as shown.
+It depends on numpy, pandas, plotly, ipywidgets and anywidget, which pip
+installs for you.
 
 ## Works like scikit-learn
 
@@ -108,10 +107,6 @@ network is used. The design is in [`docs/PLAN.md`](https://github.com/PriyanshuK
 
 This is an alpha. Things that are still rough:
 
-- **Without pandas** (`pip install glasslearn` with no extra), the quickstart
-  stops at `as_frame=True` with `ImportError: as_frame=True needs pandas`.
-  Install `glasslearn[pandas]`, or use plain arrays:
-  `X, y = gl.datasets.make_blobs(n_samples=300, centers=4, random_state=0)`.
 - **The live widget needs a notebook with ipywidgets 8**, such as JupyterLab 4,
   Notebook 7 or VS Code. In a plain Python script `explain()` displays nothing;
   use `km.explain().save("run.html")` instead. If the widget area stays blank,

@@ -32,9 +32,11 @@ Full design: `docs/PLAN.md`. Current task spec: `docs/prompts/`.
 ## Stack and commands
 
 - Python >= 3.10, src layout, hatchling, managed with **uv**.
-- Runtime deps: numpy, plotly>=5.11, ipywidgets>=8, anywidget (plotly>=6 builds
-  FigureWidget on it). pandas is optional (duck-typed).
-- Dev deps: pytest, hypothesis, nbmake, ruff, scikit-learn, pandas.
+- Runtime deps: numpy, pandas, plotly>=5.11, ipywidgets>=8, anywidget (plotly>=6
+  builds FigureWidget on it). pandas is a dependency so the quickstart works after
+  `pip install glasslearn`, but code still imports it lazily and accepts any
+  DataFrame-like input (`.columns` + `.to_numpy()`).
+- Dev deps: pytest, hypothesis, nbmake, ruff, scikit-learn.
 
 ```bash
 uv sync --all-extras          # install
