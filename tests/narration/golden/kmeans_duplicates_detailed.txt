@@ -1,0 +1,33 @@
+# KMeans, level=detailed
+
+Summary: K-means (k = 3, init = array) ran 2 iterations (no label changed). Inertia fell from 0 to 0.
+
+[0] init, iteration 0
+- Init: the 3 centroids passed as init. Next: assign each point to its nearest centroid.
+  (Centroid: the centre of a cluster, at the average position of its points.)
+
+[1] assign, iteration 1
+- Assigned all 12 points to their nearest centroid; cluster sizes 6, 6 and 0. Inertia: 0.
+  (Inertia: the sum of squared distances from every point to its centroid; lower means tighter clusters.)
+
+[2] update, iteration 1
+- Cluster 2 has no points and cannot get any: every point already sits exactly on a centroid, because there are fewer distinct points than clusters.
+- Centroid 0 moved only 0 (6 points joined it).
+- Centroid 1 moved 0.
+- Inertia unchanged at 0.
+
+[3] assign, iteration 2
+- 0 of 12 points changed cluster; inertia unchanged at 0.
+
+[4] update, iteration 2
+- Cluster 2 has no points and cannot get any: every point already sits exactly on a centroid, because there are fewer distinct points than clusters.
+- Centroids 0 and 1 kept the same points, so they stayed put.
+- Inertia unchanged at 0.
+
+[5] done, iteration 2
+- Converged after 2 iterations: no label changed in the last one. Final inertia 0.
+  (Iteration: one assignment pass followed by one update pass.)
+
+Diagnostics:
+- [step 2] Cluster 2 stayed empty: the data has fewer distinct points than clusters.
+  Fix: Use a smaller n_clusters or remove duplicate points.

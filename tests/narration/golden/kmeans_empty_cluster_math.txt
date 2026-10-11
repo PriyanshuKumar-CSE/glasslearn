@@ -1,0 +1,74 @@
+# KMeans, level=math
+
+Summary: Lloyd's algorithm, k = 3: J fell from 3,620 to 229 in 7 iterations (95% of ΔJ by iteration 2).
+
+[0] init, iteration 0
+- c_j for j = 0..2 given by init.
+
+[1] assign, iteration 1
+- label(i) = argmin_j ‖x_i − c_j‖² for all 120 points; |C_j| = (42, 78, 0). J = Σ_i ‖x_i − c_label(i)‖² = 3,620.
+
+[2] update, iteration 1
+- C₂ = ∅ ⇒ c₂ ← x_114, where 114 = argmax_i ‖x_i − c_label(i)‖ (10.5); x_114 moves from C₁ to C₂.
+- c₁ ← mean of C₁, |C₁| = 77 (+78, −1); ‖Δc₁‖ = 4.86.
+- ‖Δc_j‖ ≤ 1.6 for j ∈ {0}.
+- J: 3,620 → 1,586 (ΔJ = -2,035).
+
+[3] assign, iteration 2
+- 63 labels changed; J: 1,586 → 639 (ΔJ = -947). Largest transition T₁₂ = 36.
+
+[4] update, iteration 2
+- c₁ ← mean of C₁, |C₁| = 14 (+0, −63); ‖Δc₁‖ = 2.19.
+- c₂ ← mean of C₂, |C₂| = 37 (+36, −0); ‖Δc₂‖ = 1.38.
+- ‖Δc_j‖ ≤ 1.16 for j ∈ {0}.
+- J: 639 → 409 (ΔJ = -230).
+
+[5] assign, iteration 3
+- 7 labels changed; J: 409 → 365 (ΔJ = -43.9). Largest transition T₀₁ = 4.
+
+[6] update, iteration 3
+- c₁ ← mean of C₁, |C₁| = 15 (+4, −3); ‖Δc₁‖ = 1.42.
+- c₂ ← mean of C₂, |C₂| = 40 (+3, −0); ‖Δc₂‖ = 0.179.
+- ‖Δc_j‖ ≤ 0.164 for j ∈ {0}.
+- J: 365 → 332 (ΔJ = -33.1).
+
+[7] assign, iteration 4
+- 17 labels changed; J: 332 → 291 (ΔJ = -40.6). Largest transition T₀₁ = 17.
+
+[8] update, iteration 4
+- c₀ ← mean of C₀, |C₀| = 48 (+0, −17); ‖Δc₀‖ = 0.704.
+- c₁ ← mean of C₁, |C₁| = 32 (+17, −0); ‖Δc₁‖ = 0.663.
+- C_j unchanged ⇒ c_j unchanged for j ∈ {2}.
+- J: 291 → 253 (ΔJ = -37.8).
+
+[9] assign, iteration 5
+- 6 labels changed; J: 253 → 236 (ΔJ = -17.1). Largest transition T₀₁ = 6.
+
+[10] update, iteration 5
+- c₀ ← mean of C₀, |C₀| = 42 (+0, −6); ‖Δc₀‖ = 0.297.
+- c₁ ← mean of C₁, |C₁| = 38 (+6, −0); ‖Δc₁‖ = 0.191.
+- C_j unchanged ⇒ c_j unchanged for j ∈ {2}.
+- J: 236 → 231 (ΔJ = -5.08).
+
+[11] assign, iteration 6
+- 2 labels changed; J: 231 → 229 (ΔJ = -1.72). Largest transition T₀₁ = 2.
+
+[12] update, iteration 6
+- c₀ ← mean of C₀, |C₀| = 40 (+0, −2); ‖Δc₀‖ = 0.0982.
+- c₁ ← mean of C₁, |C₁| = 40 (+2, −0); ‖Δc₁‖ = 0.0865.
+- C_j unchanged ⇒ c_j unchanged for j ∈ {2}.
+- J: 229.3 → 228.6 (ΔJ = -0.685).
+
+[13] assign, iteration 7
+- No label changed: label(i) = argmin_j ‖x_i − c_j‖² already holds; J = 229.
+
+[14] update, iteration 7
+- C_j unchanged ⇒ c_j unchanged for j ∈ {0, 1, 2}.
+- ΔJ ≈ 0: J = 229.
+
+[15] done, iteration 7
+- Fixed point after n_iter = 7: label⁽ᵗ⁾ = label⁽ᵗ⁻¹⁾. J* = 229.
+
+Diagnostics:
+- [step 2] Cluster 2 lost all its points in iteration 1, so its centroid had to be moved.
+  Fix: Empty clusters usually mean poor starting centroids or too many clusters: try init='k-means++', more restarts (n_init=10) or a smaller n_clusters.

@@ -1,0 +1,45 @@
+# KMeans, level=math
+
+Summary: Lloyd's algorithm, k = 3: J fell from 312 billion to 246 billion in 3 iterations (94% of ΔJ by iteration 2).
+
+[0] init, iteration 0
+- c_j = x_i_j with i = (37, 69, 79), drawn uniformly without replacement. Best of 3 restarts: J = 246 billion (worst 269 billion).
+
+[1] assign, iteration 1
+- label(i) = argmin_j ‖x_i − c_j‖² for all 200 points; |C_j| = (55, 63, 82). J = Σ_i ‖x_i − c_label(i)‖² = 312 billion.
+
+[2] update, iteration 1
+- c₀ ← mean of C₀, |C₀| = 55 (+55, −0); ‖Δc₀‖ = 19,783.
+- c₁ ← mean of C₁, |C₁| = 63 (+63, −0); ‖Δc₁‖ = 13,656.
+- ‖Δc_j‖ ≤ 9,981 for j ∈ {2}.
+- J: 312 billion → 271 billion (ΔJ = -41.4 billion).
+
+[3] assign, iteration 2
+- 17 labels changed; J: 271 billion → 258 billion (ΔJ = -12.3 billion). Largest transition T₂₁ = 14.
+
+[4] update, iteration 2
+- c₂ ← mean of C₂, |C₂| = 68 (+0, −14); ‖Δc₂‖ = 9,539.
+- c₁ ← mean of C₁, |C₁| = 80 (+17, −0); ‖Δc₁‖ = 4,680.
+- ‖Δc_j‖ ≤ 2,620 for j ∈ {0}.
+- J: 258 billion → 250 billion (ΔJ = -8.3 billion).
+
+[5] assign, iteration 3
+- 6 labels changed; J: 250 billion → 248 billion (ΔJ = -2.03 billion). Largest transition T₂₁ = 4.
+
+[6] update, iteration 3
+- c₁ ← mean of C₁, |C₁| = 82 (+4, −2); ‖Δc₁‖ = 3,214.
+- c₂ ← mean of C₂, |C₂| = 64 (+0, −4); ‖Δc₂‖ = 2,875.
+- ‖Δc_j‖ ≤ 1,748 for j ∈ {0}.
+- J: 248 billion → 246 billion (ΔJ = -1.54 billion).
+
+[7] assign, iteration 3
+- Final E-step with the last centroids: 3 labels changed; J = 246 billion.
+
+[8] done, iteration 3
+- Stopped at n_iter = max_iter = 3; Σ_j ‖Δc_j‖² = 21.7 million > 311,800. J* = 246 billion.
+
+Diagnostics:
+- [whole run] The features are on very different scales: price spreads 80,295 times more than rooms (standard deviation 78,968 vs 0.983), so distances mostly measure price.
+  Fix: Scale the features first, for example with make_pipeline(StandardScaler(), model).
+- [step 8] K-means hit max_iter = 3 before converging, so the clusters may not be final.
+  Fix: Increase max_iter, or scale the features so k-means converges faster.

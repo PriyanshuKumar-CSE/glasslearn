@@ -1,0 +1,28 @@
+# KMeans, level=beginner
+
+Summary: K-means settled in 1 iteration; the inertia fell from 1,109 to 720.
+
+[0] init, iteration 0
+- K-means++ chose 5 starting centroids one at a time, each time preferring points far from the ones already chosen (rows 87, 90, 34, 121 and 92). Next, every point will join its nearest centroid.
+  (Centroid: the centre of a cluster, at the average position of its points.)
+  (K-means++: a way to choose starting centroids that are spread out, which usually means fewer iterations.)
+
+[1] assign, iteration 1
+- Every point joined its nearest centroid, giving clusters of 8, 65, 40, 40 and 47 points. The inertia starts at 1,109.
+  (Inertia: the sum of squared distances from every point to its centroid; lower means tighter clusters.)
+
+[2] update, iteration 1
+- Centroid 1 moved down and to the right to the middle of its 65 points.
+- Centroid 4 moved to the left to the middle of its 47 points.
+- Centroids 0, 2 and 3 moved less (at most 1.33).
+- Together these moves lowered the inertia from 1,109 to 743.
+
+[3] assign, iteration 1
+- After stopping, k-means made one last assignment so that every point belongs to its nearest final centroid; 11 points changed cluster. The final inertia is 720.
+
+[4] done, iteration 1
+- K-means stopped after 1 iteration because the centroids moved less than the tolerance (7.39 vs 13.8). The final inertia is 720.
+  (Iteration: one assignment pass followed by one update pass.)
+  (Tolerance: how small the centroid moves must get before training counts as finished.)
+
+Diagnostics: none

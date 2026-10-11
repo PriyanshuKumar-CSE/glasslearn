@@ -1,0 +1,48 @@
+# KMeans, level=beginner
+
+Summary: K-means used all 3 allowed iterations without fully settling; 94% of the drop in inertia happened in the first 2 iterations. It kept the best of 3 restarts.
+
+[0] init, iteration 0
+- 3 starting centroids were placed on randomly chosen points (rows 37, 69 and 79). This is the best of 3 restarts, each from different starting centroids. Next, every point will join its nearest centroid.
+  (Centroid: the centre of a cluster, at the average position of its points.)
+  (Restart: a separate run from different starting centroids; the best one is kept.)
+
+[1] assign, iteration 1
+- Every point joined its nearest centroid, giving clusters of 55, 63 and 82 points. The inertia starts at 312 billion.
+  (Inertia: the sum of squared distances from every point to its centroid; lower means tighter clusters.)
+
+[2] update, iteration 1
+- Centroid 0 moved up to the middle of its 55 points.
+- Centroid 1 moved down to the middle of its 63 points.
+- Centroid 2 moved less (9,981).
+- Together these moves lowered the inertia from 312 billion to 271 billion.
+
+[3] assign, iteration 2
+- 17 points switched to a closer centroid, so the inertia fell from 271 billion to 258 billion. The biggest move was 14 points from cluster 2 to cluster 1.
+
+[4] update, iteration 2
+- Centroid 2 moved down by 9,539 because 14 points left, so the average of its points changed.
+- Centroid 1 moved down by 4,680 because 17 points joined it, so the average of its points changed.
+- Centroid 0 moved less (2,620).
+- Together these moves lowered the inertia from 258 billion to 250 billion.
+
+[5] assign, iteration 3
+- 6 points switched to a closer centroid, so the inertia fell from 250 billion to 248 billion. The biggest move was 4 points from cluster 2 to cluster 1.
+
+[6] update, iteration 3
+- Centroid 1 moved down by 3,214 because 4 points joined it and 2 points left, so the average of its points changed.
+- Centroid 2 moved down by 2,875 because 4 points left, so the average of its points changed.
+- Centroid 0 moved less (1,748).
+- Together these moves lowered the inertia from 248 billion to 246 billion.
+
+[7] assign, iteration 3
+- After stopping, k-means made one last assignment so that every point belongs to its nearest final centroid; 3 points changed cluster. The final inertia is 246 billion.
+
+[8] done, iteration 3
+- K-means stopped because it reached max_iter = 3 before the clusters settled. The final inertia is 246 billion.
+
+Diagnostics:
+- [whole run] The features are on very different scales: price spreads 80,295 times more than rooms (standard deviation 78,968 vs 0.983), so distances mostly measure price.
+  Fix: Scale the features first, for example with make_pipeline(StandardScaler(), model).
+- [step 8] K-means hit max_iter = 3 before converging, so the clusters may not be final.
+  Fix: Increase max_iter, or scale the features so k-means converges faster.

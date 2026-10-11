@@ -1,0 +1,76 @@
+# KMeans, level=beginner
+
+Summary: K-means settled in 7 iterations; 96% of the drop in inertia happened in the first 2 iterations.
+
+[0] init, iteration 0
+- K-means++ chose 4 starting centroids one at a time, each time preferring points far from the ones already chosen (rows 164, 179, 116 and 280). Next, every point will join its nearest centroid.
+  (Centroid: the centre of a cluster, at the average position of its points.)
+  (K-means++: a way to choose starting centroids that are spread out, which usually means fewer iterations.)
+
+[1] assign, iteration 1
+- Every point joined its nearest centroid, giving clusters of 60, 98, 71 and 71 points. The inertia starts at 851.
+  (Inertia: the sum of squared distances from every point to its centroid; lower means tighter clusters.)
+
+[2] update, iteration 1
+- Centroid 3 moved down and to the left to the middle of its 71 points.
+- Centroid 1 moved down and to the left to the middle of its 98 points.
+- Centroids 0 and 2 moved less (at most 0.553).
+- Together these moves lowered the inertia from 851 to 603.
+
+[3] assign, iteration 2
+- 19 points switched to a closer centroid, so the inertia fell from 603 to 567. The biggest move was 8 points from cluster 1 to cluster 0.
+
+[4] update, iteration 2
+- Centroid 1 moved to the left by 0.31 because 1 point joined it and 15 points left, so the average of its points changed.
+- Centroid 0 moved down by 0.245 because 9 points joined it and 2 points left, so the average of its points changed.
+- Centroids 2 and 3 moved less (at most 0.136).
+- Together these moves lowered the inertia from 567 to 553.
+
+[5] assign, iteration 3
+- 8 points switched to a closer centroid, so the inertia fell from 553 to 547. The biggest move was 4 points from cluster 1 to cluster 0.
+
+[6] update, iteration 3
+- Centroid 0 moved down by 0.142 because 5 points joined it and 1 point left, so the average of its points changed.
+- Centroid 1 moved to the left by 0.126 because 6 points left, so the average of its points changed.
+- Centroids 2 and 3 moved less (at most 0.0531).
+- Together these moves lowered the inertia from 547 to 544.
+
+[7] assign, iteration 4
+- 3 points switched to a closer centroid, so the inertia fell from 544 to 543. The biggest move was 2 points from cluster 3 to cluster 0.
+
+[8] update, iteration 4
+- Centroid 0 moved down by 0.0604 because 3 points joined it, so the average of its points changed.
+- Centroid 3 moved down by 0.0516 because 2 points left, so the average of its points changed.
+- Centroids 1 and 2 moved less (at most 0.0211).
+- Together these moves lowered the inertia from 543 to 542.
+
+[9] assign, iteration 5
+- 3 points switched to a closer centroid, so the inertia fell from 542.4 to 541.8. The biggest move was 2 points from cluster 1 to cluster 0.
+
+[10] update, iteration 5
+- Centroid 0 moved down and to the left by 0.061 because 3 points joined it, so the average of its points changed.
+- Centroid 1 moved down and to the left by 0.0417 because 2 points left, so the average of its points changed.
+- Centroids 2 and 3 moved less (at most 0.028).
+- Together these moves lowered the inertia from 542 to 541.
+
+[11] assign, iteration 6
+- 2 points switched to a closer centroid, so the inertia fell from 541.3 to 541.2. The biggest move was 1 point from cluster 0 to cluster 2.
+
+[12] update, iteration 6
+- Centroid 0 moved down by 0.0291 because 1 point joined it and 1 point left, so the average of its points changed.
+- Centroid 2 moved down and to the right by 0.0271 because 1 point joined it, so the average of its points changed.
+- Centroids 1 and 3 moved less (at most 0.0218).
+- Together these moves lowered the inertia from 541.2 to 541.1.
+
+[13] assign, iteration 7
+- No point changed cluster: each one is already with its nearest centroid. The inertia stays at 541.
+
+[14] update, iteration 7
+- None of the 4 centroids moved, because no point joined or left any cluster.
+- The inertia stayed at 541.
+
+[15] done, iteration 7
+- K-means stopped after 7 iterations because no point changed cluster, so another round would change nothing. The final inertia is 541.
+  (Iteration: one assignment pass followed by one update pass.)
+
+Diagnostics: none

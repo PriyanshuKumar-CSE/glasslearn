@@ -1,0 +1,30 @@
+# KMeans, level=math
+
+Summary: Lloyd's algorithm, k = 3: J fell from 0 to 0 in 2 iterations.
+
+[0] init, iteration 0
+- c_j for j = 0..2 given by init.
+
+[1] assign, iteration 1
+- label(i) = argmin_j ‖x_i − c_j‖² for all 12 points; |C_j| = (6, 6, 0). J = Σ_i ‖x_i − c_label(i)‖² = 0.
+
+[2] update, iteration 1
+- C₂ = ∅ and max_i ‖x_i − c_label(i)‖ = 0, so no point can be moved to it.
+- c₀ ← mean of C₀, |C₀| = 6 (+6, −0); ‖Δc₀‖ = 0.
+- ‖Δc_j‖ ≤ 0 for j ∈ {1}.
+- ΔJ ≈ 0: J = 0.
+
+[3] assign, iteration 2
+- No label changed: label(i) = argmin_j ‖x_i − c_j‖² already holds; J = 0.
+
+[4] update, iteration 2
+- C₂ = ∅ and max_i ‖x_i − c_label(i)‖ = 0, so no point can be moved to it.
+- C_j unchanged ⇒ c_j unchanged for j ∈ {0, 1}.
+- ΔJ ≈ 0: J = 0.
+
+[5] done, iteration 2
+- Fixed point after n_iter = 2: label⁽ᵗ⁾ = label⁽ᵗ⁻¹⁾. J* = 0.
+
+Diagnostics:
+- [step 2] Cluster 2 stayed empty: the data has fewer distinct points than clusters.
+  Fix: Use a smaller n_clusters or remove duplicate points.

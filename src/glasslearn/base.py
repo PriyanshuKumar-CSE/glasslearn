@@ -123,7 +123,7 @@ class GlassEstimator:
             target_names=self._target_names(),
             X=X,
             y=y,
-            meta=self._meta(X, y),
+            meta={"estimator_module": type(self).__module__, **self._meta(X, y)},
         )
         return self
 

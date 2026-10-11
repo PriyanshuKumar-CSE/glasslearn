@@ -1,0 +1,28 @@
+# KMeans, level=detailed
+
+Summary: K-means (k = 5, init = k-means++) ran 1 iteration (centroid shift below tolerance). Inertia fell from 1,109 to 720.
+
+[0] init, iteration 0
+- Init: k-means++ seeded the 5 centroids at rows 87, 90, 34, 121 and 92; each seed was the best of 3 candidates sampled with probability proportional to squared distance from the centroids already chosen. Next: assign each point to its nearest centroid.
+  (Centroid: the centre of a cluster, at the average position of its points.)
+  (K-means++: a way to choose starting centroids that are spread out, which usually means fewer iterations.)
+
+[1] assign, iteration 1
+- Assigned all 200 points to their nearest centroid; cluster sizes 8, 65, 40, 40 and 47. Inertia: 1,109.
+  (Inertia: the sum of squared distances from every point to its centroid; lower means tighter clusters.)
+
+[2] update, iteration 1
+- Centroid 1 moved 1.6, mostly along x1 (-1.25), to the mean of its 65 points.
+- Centroid 4 moved 1.43, mostly along x0 (-1.34), to the mean of its 47 points.
+- Centroids 0, 2 and 3 moved 0.506, 1.33 and 0.869.
+- Inertia 1,109 → 743 (-33%).
+
+[3] assign, iteration 1
+- Final assignment pass with the last centroids: 11 points changed cluster; inertia 743 → 720.
+
+[4] done, iteration 1
+- Converged after 1 iteration: total squared centroid shift 7.39 ≤ tolerance 13.8 (tol × mean feature variance). Final inertia 720.
+  (Iteration: one assignment pass followed by one update pass.)
+  (Tolerance: how small the centroid moves must get before training counts as finished.)
+
+Diagnostics: none

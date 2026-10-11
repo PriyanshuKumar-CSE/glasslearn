@@ -718,7 +718,9 @@ class _IterationLog:
                 n_gained=int(gained[j]),
                 n_lost=int(lost[j]),
                 size=int(sizes[j]),
-                salience=0.2 + 0.6 * float(center_shift[j]) / top if top > 0 else 0.2,
+                salience=_move_salience(
+                    center_shift[j], top, gained[j], lost[j], sizes[j]
+                ),
             )
             for j in range(k)
         ]
@@ -778,6 +780,19 @@ class _IterationLog:
                 )
             ],
         )
+
+
+def _move_salience(
+    distance: float, top: float, gained: int, lost: int, size: int
+) -> float:
+    """Biggest move 0.8, others in proportion.
+
+    0.1 (background) when a non-empty cluster kept exactly the same points: its
+    mean is then unchanged and any move is rounding noise.
+    """
+    if gained == 0 and lost == 0 and size > 0:
+        return 0.1
+    return 0.2 + 0.6 * float(distance) / top if top > 0 else 0.2
 
 
 def _is_same_clustering(

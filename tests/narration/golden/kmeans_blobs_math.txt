@@ -1,0 +1,72 @@
+# KMeans, level=math
+
+Summary: Lloyd's algorithm, k = 4: J fell from 851 to 541 in 7 iterations (96% of ΔJ by iteration 2).
+
+[0] init, iteration 0
+- c_j = x_i_j with i = (164, 179, 116, 280); each i_j is the best of 3 candidates drawn with P(i) ∝ D(x_i)², the one minimising Σ_i min_l ‖x_i − c_l‖².
+
+[1] assign, iteration 1
+- label(i) = argmin_j ‖x_i − c_j‖² for all 300 points; |C_j| = (60, 98, 71, 71). J = Σ_i ‖x_i − c_label(i)‖² = 851.
+
+[2] update, iteration 1
+- c₃ ← mean of C₃, |C₃| = 71 (+71, −0); ‖Δc₃‖ = 1.53.
+- c₁ ← mean of C₁, |C₁| = 98 (+98, −0); ‖Δc₁‖ = 0.745.
+- ‖Δc_j‖ ≤ 0.553 for j ∈ {0, 2}.
+- J: 851 → 603 (ΔJ = -247).
+
+[3] assign, iteration 2
+- 19 labels changed; J: 603 → 567 (ΔJ = -36.5). Largest transition T₁₀ = 8.
+
+[4] update, iteration 2
+- c₁ ← mean of C₁, |C₁| = 84 (+1, −15); ‖Δc₁‖ = 0.31.
+- c₀ ← mean of C₀, |C₀| = 67 (+9, −2); ‖Δc₀‖ = 0.245.
+- ‖Δc_j‖ ≤ 0.136 for j ∈ {2, 3}.
+- J: 567 → 553 (ΔJ = -13.8).
+
+[5] assign, iteration 3
+- 8 labels changed; J: 553 → 547 (ΔJ = -6.44). Largest transition T₁₀ = 4.
+
+[6] update, iteration 3
+- c₀ ← mean of C₀, |C₀| = 71 (+5, −1); ‖Δc₀‖ = 0.142.
+- c₁ ← mean of C₁, |C₁| = 78 (+0, −6); ‖Δc₁‖ = 0.126.
+- ‖Δc_j‖ ≤ 0.0531 for j ∈ {2, 3}.
+- J: 547 → 544 (ΔJ = -3).
+
+[7] assign, iteration 4
+- 3 labels changed; J: 544 → 543 (ΔJ = -0.673). Largest transition T₃₀ = 2.
+
+[8] update, iteration 4
+- c₀ ← mean of C₀, |C₀| = 74 (+3, −0); ‖Δc₀‖ = 0.0604.
+- c₃ ← mean of C₃, |C₃| = 76 (+0, −2); ‖Δc₃‖ = 0.0516.
+- ‖Δc_j‖ ≤ 0.0211 for j ∈ {1, 2}.
+- J: 543 → 542 (ΔJ = -0.506).
+
+[9] assign, iteration 5
+- 3 labels changed; J: 542.4 → 541.8 (ΔJ = -0.568). Largest transition T₁₀ = 2.
+
+[10] update, iteration 5
+- c₀ ← mean of C₀, |C₀| = 77 (+3, −0); ‖Δc₀‖ = 0.061.
+- c₁ ← mean of C₁, |C₁| = 75 (+0, −2); ‖Δc₁‖ = 0.0417.
+- ‖Δc_j‖ ≤ 0.028 for j ∈ {2, 3}.
+- J: 542 → 541 (ΔJ = -0.475).
+
+[11] assign, iteration 6
+- 2 labels changed; J: 541.3 → 541.2 (ΔJ = -0.117). Largest transition T₀₂ = 1.
+
+[12] update, iteration 6
+- c₀ ← mean of C₀, |C₀| = 77 (+1, −1); ‖Δc₀‖ = 0.0291.
+- c₂ ← mean of C₂, |C₂| = 74 (+1, −0); ‖Δc₂‖ = 0.0271.
+- ‖Δc_j‖ ≤ 0.0218 for j ∈ {1, 3}.
+- J: 541.2 → 541.1 (ΔJ = -0.154).
+
+[13] assign, iteration 7
+- No label changed: label(i) = argmin_j ‖x_i − c_j‖² already holds; J = 541.
+
+[14] update, iteration 7
+- C_j unchanged ⇒ c_j unchanged for j ∈ {0, 1, 2, 3}.
+- ΔJ ≈ 0: J = 541.
+
+[15] done, iteration 7
+- Fixed point after n_iter = 7: label⁽ᵗ⁾ = label⁽ᵗ⁻¹⁾. J* = 541.
+
+Diagnostics: none

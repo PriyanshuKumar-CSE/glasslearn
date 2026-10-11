@@ -1,0 +1,49 @@
+# KMeans, level=detailed
+
+Summary: K-means (k = 3, init = random) ran 3 iterations (hit max_iter, not converged). Inertia fell from 312 billion to 246 billion; 94% of the drop came in the first 2 iterations. Best of 3 restarts.
+
+[0] init, iteration 0
+- Init: 3 distinct rows 37, 69 and 79 chosen uniformly at random. Showing restart 3 of 3, the one kept (inertia 246 billion vs 269 billion for the worst restart). Next: assign each point to its nearest centroid.
+  (Centroid: the centre of a cluster, at the average position of its points.)
+  (Inertia: the sum of squared distances from every point to its centroid; lower means tighter clusters.)
+  (Restart: a separate run from different starting centroids; the best one is kept.)
+
+[1] assign, iteration 1
+- Assigned all 200 points to their nearest centroid; cluster sizes 55, 63 and 82. Inertia: 312 billion.
+
+[2] update, iteration 1
+- Centroid 0 moved 19,783, mostly along price (+19,783), to the mean of its 55 points.
+- Centroid 1 moved 13,656, mostly along price (-13,656), to the mean of its 63 points.
+- Centroid 2 moved 9,981.
+- Inertia 312 billion → 271 billion (-13.3%).
+
+[3] assign, iteration 2
+- 17 of 200 points (8%) changed cluster, taking inertia 271 billion → 258 billion (-4.53%). Largest flow: 14 from cluster 2 to 1; sizes now 52, 80 and 68.
+
+[4] update, iteration 2
+- Centroid 2 moved 9,539, mostly along price (-9,539), because 14 points left (now 68 points).
+- Centroid 1 moved 4,680, mostly along price (-4,680), because 17 points joined it (now 80 points).
+- Centroid 0 moved 2,620.
+- Inertia 258 billion → 250 billion (-3.21%).
+
+[5] assign, iteration 3
+- 6 of 200 points (3%) changed cluster, taking inertia 250 billion → 248 billion (-0.811%). Largest flow: 4 from cluster 2 to 1; sizes now 54, 82 and 64.
+
+[6] update, iteration 3
+- Centroid 1 moved 3,214, mostly along price (-3,214), because 4 points joined it and 2 points left (now 82 points).
+- Centroid 2 moved 2,875, mostly along price (-2,875), because 4 points left (now 64 points).
+- Centroid 0 moved 1,748.
+- Inertia 248 billion → 246 billion (-0.621%).
+
+[7] assign, iteration 3
+- Final assignment pass with the last centroids: 3 points changed cluster; inertia 246.5 billion → 246.1 billion.
+
+[8] done, iteration 3
+- Stopped at max_iter = 3 without converging (last shift 21.7 million > tolerance 311,800). Final inertia 246 billion.
+  (Tolerance: how small the centroid moves must get before training counts as finished.)
+
+Diagnostics:
+- [whole run] The features are on very different scales: price spreads 80,295 times more than rooms (standard deviation 78,968 vs 0.983), so distances mostly measure price.
+  Fix: Scale the features first, for example with make_pipeline(StandardScaler(), model).
+- [step 8] K-means hit max_iter = 3 before converging, so the clusters may not be final.
+  Fix: Increase max_iter, or scale the features so k-means converges faster.

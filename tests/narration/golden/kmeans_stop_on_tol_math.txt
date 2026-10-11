@@ -1,0 +1,23 @@
+# KMeans, level=math
+
+Summary: Lloyd's algorithm, k = 5: J fell from 1,109 to 720 in 1 iteration.
+
+[0] init, iteration 0
+- c_j = x_i_j with i = (87, 90, 34, 121, 92); each i_j is the best of 3 candidates drawn with P(i) ∝ D(x_i)², the one minimising Σ_i min_l ‖x_i − c_l‖².
+
+[1] assign, iteration 1
+- label(i) = argmin_j ‖x_i − c_j‖² for all 200 points; |C_j| = (8, 65, 40, 40, 47). J = Σ_i ‖x_i − c_label(i)‖² = 1,109.
+
+[2] update, iteration 1
+- c₁ ← mean of C₁, |C₁| = 65 (+65, −0); ‖Δc₁‖ = 1.6.
+- c₄ ← mean of C₄, |C₄| = 47 (+47, −0); ‖Δc₄‖ = 1.43.
+- ‖Δc_j‖ ≤ 1.33 for j ∈ {0, 2, 3}.
+- J: 1,109 → 743 (ΔJ = -366).
+
+[3] assign, iteration 1
+- Final E-step with the last centroids: 11 labels changed; J = 720.
+
+[4] done, iteration 1
+- Stopped at n_iter = 1: Σ_j ‖Δc_j‖² = 7.39 ≤ tol · mean(Var x) = 13.8. J* = 720.
+
+Diagnostics: none
