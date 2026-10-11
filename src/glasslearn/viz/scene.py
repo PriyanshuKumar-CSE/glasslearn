@@ -13,21 +13,22 @@ from typing import Any
 
 import numpy as np
 
-#: Colour for each cluster or class index (cycled when there are more).
+#: Colour for each cluster or class index (cycled when there are more): bright
+#: glass tints that stay distinct from each other.
 PALETTE = (
-    "#4C78A8",
-    "#F58518",
-    "#54A24B",
-    "#E45756",
-    "#72B7B2",
-    "#B279A2",
-    "#EECA3B",
-    "#9D755D",
-    "#FF9DA6",
-    "#79706E",
+    "#4F7CFF",  # azure
+    "#FF8A3D",  # tangerine
+    "#22B8A0",  # teal
+    "#F2557A",  # rose
+    "#9B6BFF",  # violet
+    "#F2B92E",  # amber
+    "#38B6F0",  # sky
+    "#7FBF3F",  # lime
+    "#B97A4A",  # bronze
+    "#7C8DA6",  # slate
 )
 #: Colour for points that have no group yet (for example before the first assignment).
-UNASSIGNED = "#B8B8B8"
+UNASSIGNED = "#A3B1C6"
 
 
 def color_of(group: int) -> str:
@@ -68,7 +69,11 @@ class Markers:
 
 @dataclass
 class Arrows:
-    """Arrows from ``(x0, y0)`` to ``(x1, y1)``; may be empty on some steps."""
+    """Arrows from ``(x0, y0)`` to ``(x1, y1)``.
+
+    Keep one arrow per item on every step so moves can be animated; an arrow
+    whose ends coincide is not drawn.
+    """
 
     x0: np.ndarray
     y0: np.ndarray
@@ -80,7 +85,11 @@ class Arrows:
 
 @dataclass
 class Lines:
-    """Polylines, one per group; ``paths[i]`` is an ``(n, 2)`` array (may be empty)."""
+    """Polylines, one per group; ``paths[i]`` is an ``(n, 2)`` array.
+
+    Keep ``n`` the same on every step (repeat the last point) so lines can grow
+    smoothly when animated.
+    """
 
     paths: list[np.ndarray]
     group: np.ndarray

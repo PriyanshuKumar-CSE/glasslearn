@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -14,15 +15,58 @@ import plotly.graph_objects as go
 from .._config import LEVELS, get_config
 from ..narrate import Narrator
 from ..trace import Trace
-from .backends.plotly_backend import animated_figure, build_figure, update_figure, wrap
+from .backends.plotly_backend import (
+    ACCENT,
+    FONT,
+    animated_figure,
+    build_figure,
+    glass_axis,
+    glass_layout,
+    update_figure,
+    wrap,
+)
 from .projection import make_projection
 from .scene import make_view
 
-_WARNING_STYLE = (
-    "margin-top:8px;padding:6px 10px;border-left:4px solid #E8A33D;"
-    "background:rgba(232,163,61,0.14);border-radius:3px"
+# Frosted-glass cards for the text panels. The cards carry their own light
+# background, so they stay readable in dark notebook themes too.
+_CARD_STYLE = (
+    "background:linear-gradient(135deg,rgba(255,255,255,0.88),rgba(238,243,255,0.72));"
+    "border:1px solid rgba(148,163,184,0.35);border-radius:14px;"
+    "box-shadow:0 6px 20px rgba(15,23,42,0.07),inset 0 1px 0 rgba(255,255,255,0.8);"
+    "backdrop-filter:blur(8px);padding:12px 16px;color:#1E293B;"
+    f"font-family:{FONT}"
 )
-_QUIET_STYLE = "opacity:0.72;font-size:12px;margin-top:6px"
+_WARNING_STYLE = (
+    "margin-top:10px;padding:8px 12px;border:1px solid rgba(232,163,61,0.45);"
+    "border-left:4px solid #E8A33D;background:rgba(255,236,204,0.6);"
+    "border-radius:10px;color:#6B4400"
+)
+_QUIET_STYLE = "color:#64748B;font-size:12px;margin-top:8px"
+
+#: Accent colour of each step phase (the pill next to the iteration).
+PHASE_COLORS = {
+    "init": "#64748B",
+    "assign": "#4F7CFF",
+    "update": "#9B6BFF",
+    "epoch": "#4F7CFF",
+    "split": "#FF8A3D",
+    "done": "#22B8A0",
+}
+
+#: How long a single step glides in the live widget, in milliseconds. Faster
+#: scrubbing than this switches to instant updates so nothing queues up.
+LIVE_GLIDE_MS = 350
+
+
+def _pill(text: str, color: str) -> str:
+    r, g, b = (int(color[i : i + 2], 16) for i in (1, 3, 5))
+    return (
+        f'<span style="display:inline-block;padding:1px 10px;border-radius:999px;'
+        f"background:rgba({r},{g},{b},0.14);border:1px solid rgba({r},{g},{b},0.4);"
+        f"color:{color};font-size:12px;font-weight:600;margin-left:8px;"
+        f'font-family:{FONT}">{html.escape(text)}</span>'
+    )
 
 
 def widgets_supported() -> bool:
@@ -193,7 +237,9 @@ class ExplainView(widgets.VBox):
         for note in self.notes():
             parts.append(f'<div style="{_QUIET_STYLE}">{html.escape(note)}</div>')
         return (
-            '<div style="font-size:14px;line-height:1.5">' + "".join(parts) + "</div>"
+            f'<div style="{_CARD_STYLE};font-size:14px;line-height:1.55">'
+            + "".join(parts)
+            + "</div>"
         )
 
     def static_figure(self) -> go.Figure:
@@ -202,7 +248,12 @@ class ExplainView(widgets.VBox):
             narrator = self.narrator()
             captions = []
             for i in range(len(self.trace)):
-                lines = [f"<b>{html.escape(self.header(i))}</b>"]
+                phase = self.trace[i].phase
+                color = PHASE_COLORS.get(phase, ACCENT)
+                lines = [
+                    f"<b>{html.escape(self.header(i).rsplit(' · ', 1)[0])}</b> · "
+                    f"<span style='color:{color}'><b>{html.escape(phase)}</b></span>"
+                ]
                 lines.append(wrap(html.escape(narrator.narrate(i).text)))
                 for d in narrator.diagnostics(upto=i):
                     lines.append(wrap(html.escape(f"⚠ {d.text} Try: {d.fix}")))
@@ -210,7 +261,7 @@ class ExplainView(widgets.VBox):
             scenes = [
                 self.view.render(i, self.projection) for i in range(len(self.trace))
             ]
-            title = wrap(html.escape(narrator.summary()), 120)
+            title = wrap(html.escape(narrator.summary()), 95)
             for note in self.notes():
                 note = wrap(html.escape(note), 140)
                 title += f"<br><span style='font-size:12px'>{note}</span>"
@@ -270,19 +321,24 @@ class ExplainView(widgets.VBox):
             max=last,
             continuous_update=True,
             description="step",
+            style={"handle_color": ACCENT},
             layout=widgets.Layout(width="420px"),
         )
         widgets.jslink((self._play, "value"), (self._slider, "value"))
+        button_style = widgets.ButtonStyle(button_color="#EEF2FF")
         self._prev = widgets.Button(
             description="◀",
             tooltip="Previous step",
+            style=button_style,
             layout=widgets.Layout(width="40px"),
         )
         self._next = widgets.Button(
             description="▶",
             tooltip="Next step",
+            style=button_style,
             layout=widgets.Layout(width="40px"),
         )
+        self._last_move = 0.0
         self._figure = build_figure(
             self.view.render(self._index, self.projection), widget=True
         )
@@ -325,31 +381,36 @@ class ExplainView(widgets.VBox):
         values = self.trace.metric(name)
         steps = np.flatnonzero(~np.isnan(values))
         mx, my = self._metric_marker(values)
+        lo, hi = float(np.nanmin(values)), float(np.nanmax(values))
+        pad = 0.08 * (hi - lo) if hi > lo else max(abs(hi), 1.0) * 0.08
+        layout = glass_layout(height=170, margin={"l": 60, "r": 20, "t": 12, "b": 38})
+        layout["xaxis"] = glass_axis("step", [-0.5, len(values) - 0.5])
+        layout["yaxis"] = glass_axis(name, [lo - pad, hi + pad])
         return go.FigureWidget(
             data=[
                 go.Scatter(
                     x=steps,
                     y=values[steps],
                     mode="lines+markers",
-                    line={"color": "#4C78A8", "width": 2},
-                    marker={"size": 4},
+                    line={"color": ACCENT, "width": 2.5},
+                    marker={"size": 5, "color": ACCENT},
+                    fill="tozeroy",
+                    fillcolor="rgba(79, 124, 255, 0.10)",
                     hovertemplate=f"step %{{x}}<br>{name} %{{y:.4g}}<extra></extra>",
                 ),
                 go.Scatter(
-                    x=mx, y=my, mode="markers", marker={"size": 11, "color": "#E45756"}
+                    x=mx,
+                    y=my,
+                    mode="markers",
+                    marker={
+                        "size": 12,
+                        "color": ACCENT,
+                        "line": {"width": 6, "color": "rgba(79, 124, 255, 0.25)"},
+                    },
+                    hoverinfo="skip",
                 ),
             ],
-            layout={
-                "template": "plotly_white",
-                "height": 170,
-                "margin": {"l": 60, "r": 20, "t": 10, "b": 35},
-                "showlegend": False,
-                "xaxis": {
-                    "title": {"text": "step"},
-                    "range": [-0.5, len(values) - 0.5],
-                },
-                "yaxis": {"title": {"text": name}},
-            },
+            layout=layout,
         )
 
     def _move(self, delta: int) -> None:
@@ -359,7 +420,17 @@ class ExplainView(widgets.VBox):
 
     def _on_step(self, change: dict[str, Any]) -> None:
         self._index = int(change["new"])
-        update_figure(self._figure, self.view.render(self._index, self.projection))
+        # Glide one step at a time (play, step buttons, slow dragging); jump
+        # instantly on big or rapid moves so animations never queue up.
+        now = time.monotonic()
+        single = abs(int(change["new"]) - int(change["old"])) == 1
+        glide = single and now - self._last_move >= LIVE_GLIDE_MS / 1000
+        self._last_move = now
+        update_figure(
+            self._figure,
+            self.view.render(self._index, self.projection),
+            glide_ms=LIVE_GLIDE_MS if glide else 0,
+        )
         if self._metric is not None:
             mx, my = self._metric_marker(self.trace.metric(self._metric_name()))
             with self._metric.batch_update():
@@ -373,10 +444,17 @@ class ExplainView(widgets.VBox):
         self._refresh_text()
 
     def _refresh_text(self) -> None:
-        self._summary.value = f"<b>{html.escape(self.narrator().summary())}</b>"
+        summary = html.escape(self.narrator().summary())
+        self._summary.value = (
+            f'<div style="{_CARD_STYLE};font-weight:600;padding:10px 16px">'
+            f"{summary}</div>"
+        )
+        phase = self.trace[self._index].phase
+        title = html.escape(self.header().rsplit(" · ", 1)[0])
         self._header.value = (
-            f"<span style='font-size:15px'><b>{html.escape(self.header())}</b></span>"
-            f"<span style='{_QUIET_STYLE};margin-left:8px'>step {self._index} of "
-            f"{len(self.trace) - 1}</span>"
+            f'<span style="font-family:{FONT};font-size:15px;color:#1E293B">'
+            f"<b>{title}</b></span>{_pill(phase, PHASE_COLORS.get(phase, ACCENT))}"
+            f'<span style="{_QUIET_STYLE};margin-left:10px;font-family:{FONT}">'
+            f"step {self._index} of {len(self.trace) - 1}</span>"
         )
         self._narration.value = self.narration_html()

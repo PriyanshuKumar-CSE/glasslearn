@@ -97,21 +97,25 @@ class KMeansView(View):
         except KeyError:  # the init step: nobody is assigned yet
             labels = np.full(len(self.rows), -1)
 
+        # Each trail has one point per step: the distinct positions so far, then
+        # the current one repeated, so it grows smoothly when animated.
         trails = []
         for j in clusters:
             path = np.array([c[j] for c in data["centers"][: index + 1]])
             keep = np.ones(len(path), dtype=bool)
             keep[1:] = np.any(path[1:] != path[:-1], axis=1)
-            trails.append(path[keep])
+            path = path[keep]
+            padding = np.repeat(path[-1:], len(self.trace) - len(path), axis=0)
+            trails.append(np.vstack([path, padding]))
 
+        # One arrow per centroid on every step; zero length (so not drawn)
+        # except on update steps.
+        start = centers
         if step.phase == "update":
-            old = projection.transform(step.state["old_centers"])
-            arrows = Arrows(
-                old[:, 0], old[:, 1], centers[:, 0], centers[:, 1], clusters
-            )
-        else:
-            empty = np.empty(0)
-            arrows = Arrows(empty, empty, empty, empty, np.empty(0, dtype=int))
+            start = projection.transform(step.state["old_centers"])
+        arrows = Arrows(
+            start[:, 0], start[:, 1], centers[:, 0], centers[:, 1], clusters
+        )
 
         x_title, y_title = projection.axis_titles
         iteration = step.state.get("iteration", 0)

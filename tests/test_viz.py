@@ -5,6 +5,7 @@ from sklearn.decomposition import PCA as SkPCA
 
 import glasslearn as gl
 from glasslearn.cluster import KMeans
+from glasslearn.cluster.kmeans.events import CentroidMoved
 from glasslearn.viz import (
     PCA,
     Arrows,
@@ -143,11 +144,19 @@ def test_view_content_follows_the_trace(km):
         km.cluster_centers_,
     )
     for step, scene in zip(trace, scenes, strict=True):
-        n_arrows = len(scene.layers[2].x0)
-        assert n_arrows == (4 if step.phase == "update" else 0)
+        arrows = scene.layers[2]
+        assert len(arrows.x0) == 4  # always one per centroid, so moves can glide
+        lengths = np.hypot(arrows.x1 - arrows.x0, arrows.y1 - arrows.y0)
+        if step.phase == "update":  # 2 features: arrows show the recorded moves
+            moves = [m.distance for m in step.events_of(CentroidMoved)]
+            np.testing.assert_allclose(lengths, moves, atol=1e-12)
+        else:
+            assert lengths.max() == 0
         assert scene.caption.endswith(step.phase)
-    trail_lengths = [len(s.layers[0].paths[0]) for s in scenes]
-    assert trail_lengths == sorted(trail_lengths) and trail_lengths[0] == 1
+    # Trails keep one point per step; the distinct positions grow over time.
+    assert {len(p) for s in scenes for p in s.layers[0].paths} == {len(trace)}
+    distinct = [len(np.unique(s.layers[0].paths[0], axis=0)) for s in scenes]
+    assert distinct == sorted(distinct) and distinct[0] == 1 and distinct[-1] > 1
 
 
 def test_view_samples_points_per_cluster(km):
@@ -178,7 +187,7 @@ def test_figure_updates_in_place_with_fixed_trace_count(km):
     fig = build_figure(scenes[0], widget=True)
     assert isinstance(fig, go.FigureWidget)
     n = len(fig.data)
-    assert n == 4 + 3  # one trail per centroid, points, arrows, centroids
+    assert n == 4 + 4  # a trail per centroid, points, arrows, centroid halo + core
     seen = set()
     for scene in scenes:
         update_figure(fig, scene)
@@ -194,6 +203,18 @@ def test_update_rejects_a_different_layout(km):
     _, other_scenes = scenes_for(other)
     with pytest.raises(ValueError, match="same layers"):
         update_figure(fig, other_scenes[0])
+
+
+def test_glide_uses_an_animated_update(km, monkeypatch):
+    _, scenes = scenes_for(km)
+    fig = build_figure(scenes[0], widget=True)
+    sent = []
+    monkeypatch.setattr(fig, "_send_animate_msg", lambda **kw: sent.append(kw))
+    update_figure(fig, scenes[1], glide_ms=300)
+    assert len(sent) == 1
+    assert sent[0]["animation_opts"]["transition"]["duration"] == 300
+    update_figure(fig, scenes[2])  # without glide_ms: a plain in-place update
+    assert len(sent) == 1
 
 
 def test_animated_figure(km):

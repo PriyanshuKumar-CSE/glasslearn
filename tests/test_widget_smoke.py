@@ -32,7 +32,8 @@ def test_scrubbing_every_step_updates_in_place(km):
         narrations.add(view._narration.value)
         headers.add(view._header.value)
     assert len(centroids) > 1 and len(narrations) == len(km.trace_)
-    assert "Iteration 7 of 7 · done" in view._header.value
+    assert "<b>Iteration 7 of 7</b>" in view._header.value
+    assert ">done</span>" in view._header.value  # the phase pill
 
 
 def test_widget_parts(km):
