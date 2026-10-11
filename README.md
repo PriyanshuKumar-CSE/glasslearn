@@ -111,6 +111,9 @@ This is an alpha. Things that are still rough:
   Notebook 7 or VS Code. In a plain Python script `explain()` displays nothing;
   use `km.explain().save("run.html")` instead. If the widget area stays blank,
   `km.explain(static=True)` shows a plain plotly figure with a slider.
+- **Google Colab shows the static figure**, not the live widget: Colab does not
+  reliably render plotly's `FigureWidget`. Use the ▶ button and the slider
+  under the plot to step through training, and the narration above the plot.
 - **VS Code may offer no kernel for a uv-created `.venv`.** uv 0.13 writes the
   Python version without its patch number (`version_info = 3.12`) to
   `.venv/pyvenv.cfg`, and VS Code then skips that environment. Either register

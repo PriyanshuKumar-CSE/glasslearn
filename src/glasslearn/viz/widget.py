@@ -26,19 +26,22 @@ _QUIET_STYLE = "opacity:0.72;font-size:12px;margin-top:6px"
 
 
 def widgets_supported() -> bool:
-    """True inside a Jupyter-style kernel (JupyterLab, VS Code, Colab) with the
-    widget packages installed."""
+    """True inside a Jupyter kernel (JupyterLab, Notebook, VS Code) with the widget
+    packages installed.
+
+    Always False in Google Colab: Colab does not reliably render plotly's
+    FigureWidget, so ``explain()`` uses the static figure there (which still
+    has a slider and a play button). Pass ``static=False`` to try the widget.
+    """
+    if "google.colab" in sys.modules:
+        return False
     try:
         import anywidget  # noqa: F401
         from IPython import get_ipython
     except ImportError:
         return False
     shell = get_ipython()
-    if shell is None:
-        return False
-    return (
-        type(shell).__name__ == "ZMQInteractiveShell" or "google.colab" in sys.modules
-    )
+    return shell is not None and type(shell).__name__ == "ZMQInteractiveShell"
 
 
 class ExplainView(widgets.VBox):

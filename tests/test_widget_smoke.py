@@ -130,3 +130,30 @@ def test_ipython_display_does_not_fail(km, capsys):
 def test_bad_step(km):
     with pytest.raises(IndexError, match="out of range"):
         km.explain(step=999)
+
+
+class ZMQInteractiveShell:  # stands in for the shell of a Jupyter kernel
+    pass
+
+
+def test_jupyter_kernel_gets_the_widget(km, monkeypatch):
+    import IPython
+
+    monkeypatch.setattr(IPython, "get_ipython", lambda: ZMQInteractiveShell())
+    assert widgets_supported() is True
+    assert km.explain().static is False
+
+
+def test_colab_gets_the_static_figure(km, monkeypatch):
+    import sys
+    import types
+
+    import IPython
+
+    monkeypatch.setattr(IPython, "get_ipython", lambda: ZMQInteractiveShell())
+    monkeypatch.setitem(sys.modules, "google.colab", types.ModuleType("google.colab"))
+    assert widgets_supported() is False
+    view = km.explain()
+    assert view.static is True
+    assert len(view.figure.frames) == len(km.trace_)
+    assert km.explain(static=False).static is False  # still possible on request
