@@ -32,7 +32,8 @@ Full design: `docs/PLAN.md`. Current task spec: `docs/prompts/`.
 ## Stack and commands
 
 - Python >= 3.10, src layout, hatchling, managed with **uv**.
-- Runtime deps: numpy, plotly>=5, ipywidgets>=8. pandas is optional (duck-typed).
+- Runtime deps: numpy, plotly>=5.11, ipywidgets>=8, anywidget (plotly>=6 builds
+  FigureWidget on it). pandas is optional (duck-typed).
 - Dev deps: pytest, hypothesis, nbmake, ruff, scikit-learn, pandas.
 
 ```bash

@@ -57,7 +57,9 @@ install it from GitHub:
 pip install "glasslearn[pandas] @ git+https://github.com/PriyanshuKumar-CSE/glasslearn"
 ```
 
-It depends on numpy, plotly, ipywidgets and anywidget; pandas is optional.
+It depends on numpy, plotly, ipywidgets and anywidget. pandas is optional, but
+the quickstart needs it (`as_frame=True`), as do `summary()` and
+`trace_.to_frame()`, so install the `[pandas]` extra as shown.
 
 ## Works like scikit-learn
 
@@ -101,6 +103,38 @@ Each algorithm only *records*: its training loop reports steps and events
 fitting, a narrator turns the events into sentences from tested templates, and
 a view turns each step into a plot. Nothing is generated at runtime and no
 network is used. The design is in [`docs/PLAN.md`](https://github.com/PriyanshuKumar-CSE/glasslearn/blob/main/docs/PLAN.md).
+
+## Known issues
+
+This is an alpha. Things that are still rough:
+
+- **Without pandas** (`pip install glasslearn` with no extra), the quickstart
+  stops at `as_frame=True` with `ImportError: as_frame=True needs pandas`.
+  Install `glasslearn[pandas]`, or use plain arrays:
+  `X, y = gl.datasets.make_blobs(n_samples=300, centers=4, random_state=0)`.
+- **The live widget needs a notebook with ipywidgets 8**, such as JupyterLab 4,
+  Notebook 7 or VS Code. In a plain Python script `explain()` displays nothing;
+  use `km.explain().save("run.html")` instead. If the widget area stays blank,
+  `km.explain(static=True)` shows a plain plotly figure with a slider.
+- **VS Code may offer no kernel for a uv-created `.venv`.** uv 0.13 writes the
+  Python version without its patch number (`version_info = 3.12`) to
+  `.venv/pyvenv.cfg`, and VS Code then skips that environment. Either register
+  it as a kernel with
+  `uv run python -m ipykernel install --user --name glasslearn` (ipykernel must
+  be installed in that venv), or put the full version in that file:
+  `sed -i "s/^version_info = .*/version_info = $(.venv/bin/python -c 'import platform; print(platform.python_version())')/" .venv/pyvenv.cfg`,
+  then reload the VS Code window.
+- **Saved HTML files are large** (about 5.5 MB for the quickstart) because
+  plotly.js is embedded so the file opens offline. They grow with the number of
+  steps.
+- **Plots always have a light background**, also in dark notebook themes.
+- **`NotFittedError` is glasslearn's own class.** Like scikit-learn's, it is a
+  `ValueError` and an `AttributeError`, but `except
+  sklearn.exceptions.NotFittedError` will not catch it. Catch
+  `glasslearn.NotFittedError` (or `ValueError`) instead. This is the one
+  `check_estimator` check that fails.
+- **`KMeans` gaps compared with scikit-learn:** no `sample_weight`, no sparse
+  input, no `set_output`, and float32 input is computed in float64.
 
 ## Development
 
