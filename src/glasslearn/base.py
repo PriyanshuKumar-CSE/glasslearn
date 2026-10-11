@@ -151,11 +151,37 @@ class GlassEstimator:
     def _meta(self, X: np.ndarray, y: np.ndarray | None) -> dict[str, Any]:
         return {"n_samples": int(X.shape[0])}
 
+    # -- scikit-learn integration -----------------------------------------------
+
+    def __sklearn_tags__(self):
+        """Describe the estimator to scikit-learn (``check_estimator``, CV tools).
+
+        scikit-learn calls this hook and requires its own ``Tags`` objects, so
+        they are imported here, at call time. This is the only place glasslearn
+        touches scikit-learn: it is never imported by glasslearn itself, and
+        whenever this runs scikit-learn has already been loaded by its caller.
+        """
+        from sklearn.utils import InputTags, Tags, TargetTags
+
+        return Tags(
+            estimator_type=None,
+            target_tags=TargetTags(required=False),
+            transformer_tags=None,
+            regressor_tags=None,
+            classifier_tags=None,
+            input_tags=InputTags(),
+        )
+
 
 class ClusterMixin:
     """Adds ``fit_predict`` to clustering estimators."""
 
     _estimator_type = "clusterer"
+
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.estimator_type = "clusterer"
+        return tags
 
     def fit_predict(self, X: Any, y: Any = None, *, record: bool = True) -> np.ndarray:
         """Fit the model and return the cluster label of each training sample."""
@@ -164,6 +190,13 @@ class ClusterMixin:
 
 class TransformerMixin:
     """Adds ``fit_transform`` to estimators that have ``transform``."""
+
+    def __sklearn_tags__(self):
+        from sklearn.utils import TransformerTags
+
+        tags = super().__sklearn_tags__()
+        tags.transformer_tags = TransformerTags(preserves_dtype=["float64"])
+        return tags
 
     def fit_transform(
         self, X: Any, y: Any = None, *, record: bool = True

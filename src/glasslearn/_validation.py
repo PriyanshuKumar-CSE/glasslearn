@@ -17,6 +17,30 @@ class NotFittedError(ValueError, AttributeError):
     """Raised when a method needs a fitted estimator but ``fit`` was not called."""
 
 
+class InvalidParameterError(ValueError, TypeError):
+    """Raised by ``fit`` when a constructor parameter has a wrong type or value."""
+
+
+class ConvergenceWarning(UserWarning):
+    """Warns that fitting ended in a degenerate or unconverged state."""
+
+
+def is_arraylike_not_scalar(x: Any) -> bool:
+    """True for arrays, lists and similar, but not for strings or numbers."""
+    return (
+        hasattr(x, "__len__") or hasattr(x, "shape") or hasattr(x, "__array__")
+    ) and not np.isscalar(x)
+
+
+def check_param(estimator: Any, name: str, ok: bool, expected: str) -> None:
+    """Raise InvalidParameterError (sklearn's wording) unless ``ok``."""
+    if not ok:
+        raise InvalidParameterError(
+            f"The {name!r} parameter of {type(estimator).__name__} must be "
+            f"{expected}. Got {getattr(estimator, name)!r} instead."
+        )
+
+
 def check_random_state(seed: Any) -> np.random.RandomState:
     """Turn ``None``, an int or a RandomState into a RandomState (as scikit-learn)."""
     if seed is None or seed is np.random:

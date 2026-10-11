@@ -42,7 +42,7 @@ dev = [
     "hypothesis>=6",
     "nbmake>=1.5",
     "ruff>=0.6",
-    "scikit-learn>=1.4",
+    "scikit-learn>=1.6",
     "pandas>=1.5",
     "jupyter>=1",
 ]
@@ -56,6 +56,12 @@ include = ["src/glasslearn", "tests", "LICENSE", "README.md"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+filterwarnings = [
+    # By design: glasslearn estimators do not inherit from sklearn's BaseEstimator.
+    "ignore:Estimator .* does not inherit from `sklearn.base.BaseEstimator`:UserWarning",
+    # scikit-learn 1.7's parametrize_with_checks passes a generator to pytest.
+    "ignore:Passing a non-Collection iterable to parametrize",
+]
 
 [tool.ruff]
 line-length = 88

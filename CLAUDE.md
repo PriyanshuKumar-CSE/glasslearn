@@ -17,8 +17,12 @@ Full design: `docs/PLAN.md`. Current task spec: `docs/prompts/`.
   `__init__` only stores its args unchanged. Must pass
   `sklearn.utils.estimator_checks.check_estimator` and work with `clone`,
   `Pipeline` and `GridSearchCV`.
-- **scikit-learn is test-only.** Never import sklearn from `src/`. It is the
-  reference that parity tests compare against.
+- **scikit-learn is test-only.** glasslearn never depends on sklearn and never
+  imports it at module level or in normal code paths. The one exception is the
+  `__sklearn_tags__` hooks in `base.py`: sklearn calls them and requires its own
+  `Tags` objects, so they import those inside the method body (sklearn is always
+  already loaded when they run). sklearn is the reference parity tests compare
+  against.
 - **No AI or network calls at runtime.** Explanations come only from recorded state.
 - **Visuals live in the notebook cell.** No servers or web apps. Live mode =
   ipywidgets + plotly `FigureWidget`; fallback = plotly figure with frames.
